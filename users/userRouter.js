@@ -42,7 +42,7 @@ router.post('/register', async (req, res) => {
 
 });
 
-router.get('/users', restrict, async (req,res) => {
+router.get('/restricted/users', async (req,res) => {
   try {
     const userList = await Users.find();
 
@@ -52,30 +52,7 @@ router.get('/users', restrict, async (req,res) => {
   }
 });
 
-async function restrict(req,res,next) {
-  let { name, password } = req.headers;
 
-  if (!name || !password) {
-    res.status(401).json({ message: "Please provide credentials." })
-  } else {
-    console.log({ name, password });
-
-    try {
-      let foundUser = await Users.findByName(name);
-      console.log(foundUser);
-
-
-      if (foundUser && bcrypt.compareSync(password, foundUser.password)) {
-        next();
-      } else {
-        res.status(403).json({ message: "You shall not pass!" })
-      }
-
-    } catch(error) {
-      res.status(500).json({ message: "Error!" })
-    }
-
-}};
 
 
 module.exports = router;
