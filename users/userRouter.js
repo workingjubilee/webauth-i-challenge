@@ -5,6 +5,7 @@
 
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const session = require('express-session');
 
 const Users = require('./userKnex.js');
 
@@ -20,7 +21,25 @@ router.get('/', async (req,res) => {
 }
 });
 
-router.post('/login', (req,res) => {
+router.post('/login', async (req, res, next) => {
+  let { name, password } = req.body;
+
+  try {
+  let loggingUser = await Users.findByName(name);
+
+  if (loggingUser && bcrypt.compareSync(password, loggingUser.password)) {
+
+        req.session.user = loggingUser;
+
+        res.status(200).json({
+          message: `Welcome ${loggingUser.name}!`,
+        });
+      } else {
+        res.status(401).json({ message: 'Invalid Credentials?' });
+      }
+    } catch(error) {
+    res.status(500).json(error);
+  }
 
 });
 
